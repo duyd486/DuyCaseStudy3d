@@ -12,6 +12,7 @@ public class CombatScript : MonoBehaviour
     private Animator animator;
     private CinemachineImpulseSource impulseSource;
     private CharacterController characterController;
+    
 
     [Header("Target")]
     private EnemyScript lockedTarget;
@@ -28,6 +29,7 @@ public class CombatScript : MonoBehaviour
     [Header("States")]
     public bool isAttackingEnemy = false;
     public bool isCountering = false;
+    public bool isDead = false;
 
     [Header("Public References")]
 
@@ -108,13 +110,14 @@ public class CombatScript : MonoBehaviour
 
     public void Attack(EnemyScript target, float distance)
     {
+        if (isDead) return;
         //Types of attack animation
         attacks = new string[] { "AirKick", "AirKick2", "AirPunch", "AirKick3" };
 
         //Attack nothing in case target is null
         if (target == null)
         {
-            AttackType("GroundPunch", .2f, null, 0);
+            AttackType("GroundPunch", 1f, null, 0);
             lockedTarget = null;
 
             return;
@@ -126,11 +129,12 @@ public class CombatScript : MonoBehaviour
             animationCount = (int)Mathf.Repeat((float)animationCount + 1, (float)attacks.Length);
             string attackString = isLastHit() ? attacks[Random.Range(0, attacks.Length)] : attacks[animationCount];
             AttackType(attackString, attackCooldown, target, .65f);
+            ScoreManager.instance.AddPoint(2);
         }
         else
         {
             lockedTarget = null;
-            AttackType("GroundPunch", .2f, null, 0);
+            AttackType("GroundPunch", 1f, null, 0);
         }
 
         //Change impulse
@@ -209,6 +213,7 @@ public class CombatScript : MonoBehaviour
 
             float duration = .2f;
             animator.SetTrigger("Dodge");
+            ScoreManager.instance.AddPoint(1);
             transform.DOLookAt(lockedTarget.transform.position, .2f);
             transform.DOMove(transform.position + lockedTarget.transform.forward, duration);
 
@@ -250,12 +255,16 @@ public class CombatScript : MonoBehaviour
 
     public void DamageEvent()
     {
-        animator.SetTrigger("Hit");
+        ScoreManager.instance.AddPoint(-2);
+
         healthBar.fillAmount = currentHealth / 100f;
         //currentHealth--;
         if (currentHealth <= 0)
         {
             Death();
+        } else
+        {
+            animator.SetTrigger("Hit");
         }
         transform.DOMove(transform.position - (transform.forward / 2), .3f).SetDelay(.1f);
 
@@ -275,6 +284,7 @@ public class CombatScript : MonoBehaviour
 
     public void Death()
     {
+        isDead = true;
         animator.SetTrigger("IsDead");
         characterController.enabled = false;
         this.enabled = false;

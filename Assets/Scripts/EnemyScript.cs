@@ -46,6 +46,7 @@ public class EnemyScript : MonoBehaviour
     void Start()
     {
         enemyManager = GetComponentInParent<EnemyManager>();
+        hitParticle = GetComponentInParent<ParticleSystemScript>();
 
         animator = GetComponent<Animator>();
         characterController = GetComponent<CharacterController>();

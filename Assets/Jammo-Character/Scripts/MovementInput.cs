@@ -23,13 +23,16 @@ public class MovementInput : MonoBehaviour
 	[Header("Booleans")]
 	[SerializeField] bool blockRotationPlayer;
 	private bool isGrounded;
+    private CombatScript playerCombat;
 
 
-	void Start()
+
+    void Start()
 	{
 		anim = this.GetComponent<Animator>();
 		cam = Camera.main;
 		controller = this.GetComponent<CharacterController>();
+		playerCombat = this.GetComponent<CombatScript>();
 	}
 
 	void Update()
@@ -92,7 +95,9 @@ public class MovementInput : MonoBehaviour
 
 	void InputMagnitude()
 	{
+		if(playerCombat.isDead) return;
 		//Calculate the Input Magnitude
+		
 		float inputMagnitude = new Vector2(moveAxis.x, moveAxis.y).sqrMagnitude;
 
 		//Physically move player

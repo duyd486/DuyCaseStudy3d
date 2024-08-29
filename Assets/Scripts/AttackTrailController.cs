@@ -27,7 +27,7 @@ public class AttackTrailController : MonoBehaviour
                 trail.transform.parent = rightFoot;
                 break;
             default:
-                trail.transform.parent = leftFoot;
+                trail.transform.parent = rightHand;
                 break;
         }
     }
